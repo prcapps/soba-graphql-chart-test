@@ -1,0 +1,157 @@
+<html>
+<head>
+	<style type='text/css'>
+		table{
+			width: 100%;
+		}
+
+		td {
+		   border: 1px solid black;
+		}
+
+		table table table{
+			/*width: 60%;*/
+		}
+
+		table table strong{
+			display: block;
+			text-align: center;
+		}
+		table table table td{
+			text-align: right;
+
+			padding-right: 10px;
+			width: 100%;
+		}
+
+		table table table td:first-child{
+			padding-left: 50px;
+			text-align: right;
+
+		}
+
+		.inputs > div{
+			margin-bottom: 20px;
+		}
+		.inputs input{
+			width: 50%;
+		}
+
+		.inputs label{
+			width: 100px;
+			display: inline-block;
+		}
+
+	</style>
+</head>
+<body>
+	<h1>
+		ChartJS + GraphQL
+	</h1>
+	<div id="app">
+
+	</div>
+
+	<div style='width: 58%; height: 400px; display: block;'>
+		<canvas id="myChart" width="800" height="400"></canvas>
+	</div>
+	<div id="example-1">
+		<div class='inputs'>
+			<div>
+				<label>Dataset:</label>
+				<input v-model="dataset" placeholder="edit me">
+			</div>
+			<div>
+				<label>Group By:</label>
+				<input v-model="groupByText" placeholder="edit me">
+			</div>
+			<div>
+				<label>Date Field:</label>
+				<input v-model="byDateText" placeholder="edit me">
+			</div>
+		</div>
+		<strong>{{ items[0].groupcategory }}</strong>
+		<table style='width: 100%'>
+			
+		  <tr v-for="item in items">
+		    <td>{{ item.grouptitle }}
+		    </td>
+		    <td>
+		    	{{ item.count }}
+		    </td>
+		    <td>
+				<strong>{{ item.subitems[0].groupcategory }}</strong>
+		    	<table>
+				  <tr v-for="item in item.subitems">
+					    <td>
+					    	{{ item.grouptitle }}
+					   	</td>
+					   	<td>
+					    	{{ item.count }}
+					    </td>
+					    <td v-if="item.subitems[0].groupcategory">
+							<strong>{{ item.subitems[0].groupcategory }}</strong>
+	    					<table>
+								<tr v-for="item in item.subitems">
+									<td>{{ item.grouptitle }}</td>
+									<td>
+									{{ item.count }}
+									</td>
+								</tr>
+							</table>
+						</td>
+				  </tr>
+		    	</table>
+		    </td>
+		  </tr>
+		</table>
+		<!-- <table style='width: 100%'>
+			<thead>
+				<tr>
+					<th>
+						{{ items[0].groupcategory }}
+					</th>
+					<th>
+						{{ items[0].subitems[0].groupcategory }}
+					</th>
+					<th>
+						{{ items[0].subitems[0].subitems[0].groupcategory }}
+					</th>
+				</tr>
+			</thead>
+		  <tr v-for="item in items">
+		    <td>{{ item.grouptitle }}
+		    	:
+		    	{{ item.count }}
+		    </td>
+		    <td>
+		    	<table>
+				  <tr v-for="item in item.subitems">
+					    <td>{{ item.grouptitle }}
+					    	:
+					    	{{ item.count }}
+					    </td>
+				  </tr>
+		    	</table>
+		    </td>
+		    <td>
+				<table v-for="item in item.subitems">
+					<tr v-for="item in item.subitems">
+						<td>{{ item.grouptitle }}</td>
+						<td>
+						{{ item.count }}
+						</td>
+					</tr>
+				</table>
+		    </td>
+		  </tr>
+		</table> -->
+	</div>
+
+	
+	<!-- development version, includes helpful console warnings -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
+	<script src='soba.js'></script>
+</body>
+</html>

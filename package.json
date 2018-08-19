@@ -1,0 +1,18 @@
+{
+  "name": "soba-charts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "soba.js",
+  "dependencies": {
+    "apollo-boost": "^0.1.14",
+    "chart.js": "^2.7.2",
+    "graphql": "^0.13.2",
+    "graphql-tag": "^2.9.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
