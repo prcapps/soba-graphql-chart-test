@@ -3,6 +3,7 @@ import App from './App.vue'
 
 Vue.config.productionTip = false
 
-new Vue({
+// eslint-disable-next-line
+var sobaApp = new Vue({
   render: h => h(App)
 }).$mount('#app')
