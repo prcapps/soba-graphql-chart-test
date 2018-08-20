@@ -1,5 +1,12 @@
 
 
+var groupBy = [ "offense_group_level", "offense_group_short_description"];
+var byDate = ["year"];
+var dataset = "v_simplicity_crimes";
+var count = "incident_id";
+var dateField = "date_occurred";
+
+
 var app = new Vue({
   el: '#app',
   data: {
@@ -18,6 +25,8 @@ var example1 = new Vue({
     groupByText: "",
     byDateText : "",
     dataset : "",
+    count : "",
+    dateField : ""
   },
   watch: {
 	    // whenever question changes, this function will run
@@ -29,6 +38,15 @@ var example1 = new Vue({
 	    byDateText: function (newValue, oldValue) {
 	    	console.log(newValue);
 	    	byDate =  JSON.parse(newValue);
+	    	doFetch();
+	    },
+	    dataset: function (newValue, oldValue) {
+	    	console.log(newValue, 'test');
+	    	dataset = newValue;
+	    	doFetch();
+	    },
+	    count: function (newValue, oldValue) {
+	    	count = newValue;
 	    	doFetch();
 	    },
 	    dataset: function (newValue, oldValue) {
@@ -123,16 +141,14 @@ function processGraphQLForChart(data){
 }
 
 
-var groupBy = [ "offense_group_level", "offense_group_short_description"];
-var byDate = ["year"];
-var dataset = "v_simplicity_crimes";
-
 example1.groupByText = JSON.stringify(groupBy);
 example1.byDateText = JSON.stringify(byDate);
 example1.dataset = dataset;
+example1.count = count;
+example1.dateField = dateField;
 
-var query = `query generic_month_stats($dataset: String!, $byDate: [String], $groupBy: [String]) {
-  generic_month_stats(dataset: $dataset, count: "incident_id", dateField: "date_occurred", byDate: $byDate, groupBy: $groupBy) {
+var query = `query generic_month_stats($dataset: String!, $byDate: [String], $groupBy: [String], $count : String!, $dateField: String!) {
+  generic_month_stats(dataset: $dataset, count: $count, dateField: $dateField, byDate: $byDate, groupBy: $groupBy) {
   	count
     grouptitle
     groupcategory
@@ -164,7 +180,7 @@ function doFetch(){
 
 	var body_string = JSON.stringify({
 	    query,
-	    variables: { dataset, byDate, groupBy },
+	    variables: { dataset, byDate, groupBy, count, dateField },
 	  });
 
 	console.log(body_string);
