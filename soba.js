@@ -49,9 +49,8 @@ var example1 = new Vue({
 	    	count = newValue;
 	    	doFetch();
 	    },
-	    dataset: function (newValue, oldValue) {
-	    	console.log(newValue, 'test');
-	    	dataset = newValue;
+	    dateField: function (newValue, oldValue) {
+	    	dateField = newValue;
 	    	doFetch();
 	    }
 	}
@@ -184,7 +183,8 @@ function doFetch(){
 	  });
 
 	console.log(body_string);
- fetch('https://graphql.prcapps.com/graphql', {   method: 'POST',   
+ fetch('http://localhost:8080/graphql', {   method: 'POST',   
+ // fetch('https://graphql.prcapps.com/graphql', {   method: 'POST',   
  	headers: {     'Content-Type': 'application/json',     'Accept': 'application/json',   },   
  	// body: JSON.stringify({query: "{ generic_month_stats(dataset: \"v_simplicity_crimes\", count: \"incident_id\", dateField: \"date_occurred\", byDate: [\"year\"], groupBy: [\"offense_group_level\", \"geo_beat\"]) {     count     grouptitle     groupcategory     subitems {       count       grouptitle       groupcategory       subitems {         count         grouptitle         groupcategory         subitems {           count           grouptitle           groupcategory           subitems {             count             grouptitle             groupcategory           }         }       }     }   } }"}) })  
  	body: body_string
