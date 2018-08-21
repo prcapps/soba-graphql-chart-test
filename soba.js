@@ -182,7 +182,7 @@ function doFetch(){
 	    variables: { dataset, byDate, groupBy, count, dateField },
 	  });
 
-	console.log(body_string);
+	console.log(body_string); 
  // fetch('http://localhost:8080/graphql', {   method: 'POST',   
  fetch('https://graphql.prcapps.com/graphql', {   method: 'POST',   
  	headers: {     'Content-Type': 'application/json',     'Accept': 'application/json',   },   
