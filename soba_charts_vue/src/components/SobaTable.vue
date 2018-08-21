@@ -8,7 +8,7 @@
           <td>
             {{ item.count }}
           </td>
-          <td v-if="item.subitems && item.subitems[0].grouptitle">
+          <td v-if="item.subitems && item.subitems[0].groupcategory">
             <strong>{{ item.subitems[0].groupcategory }}</strong>
             <SobaTable v-bind:items="item.subitems"></SobaTable>
           </td>
@@ -28,5 +28,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
+*{
+  /*background: green;*/
+}
 </style>

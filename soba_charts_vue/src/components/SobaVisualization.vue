@@ -75,7 +75,7 @@ export default {
     // items: [String],
     // groupByText: '',
     // byDateText: '',
-    // dataset: '',
+    datasetIn: ''
     // count: '',
     // dateField: ''
   },
@@ -92,6 +92,7 @@ export default {
     }
   },
   mounted: function () {
+    this.dataset = this.datasetIn;
     this.doFetch()
   },
   // actions

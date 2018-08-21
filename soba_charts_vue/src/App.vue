@@ -5,7 +5,8 @@
     </h1>
     <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
-    <SobaVisualization></SobaVisualization>
+    <SobaVisualization v-bind:dataset-in="'v_simplicity_crimes'"></SobaVisualization>
+    <SobaVisualization v-bind:dataset-in="'v_simplicity_crimes'"></SobaVisualization>
   </div>
 </template>
 
