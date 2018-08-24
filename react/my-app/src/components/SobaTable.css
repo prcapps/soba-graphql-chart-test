@@ -1,0 +1,19 @@
+*{
+  /*background: green;*/
+}
+
+table{
+	/*background: red;*/
+	width: 80%;
+	margin: 0 auto;
+	border: 1px solid black;
+
+}
+
+table table{
+	width: 100%;
+}
+
+td{
+	border: 1px solid black;
+}
