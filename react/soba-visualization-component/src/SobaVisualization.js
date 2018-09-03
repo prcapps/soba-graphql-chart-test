@@ -299,6 +299,13 @@ class SobaVisualization extends Component {
       <div className="soba-visualization">
         <div className="user-controls">
           <h1>{ this.props.title }</h1>
+          <h4>
+            {this.props.dataset}
+            &nbsp; group by &nbsp;
+            {this.state.groupByText}
+            &nbsp; and date &nbsp;
+            {this.state.byDateText}
+          </h4>
           <select
             name="byDateText"
             value={this.state.byDateText}
