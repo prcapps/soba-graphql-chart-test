@@ -206,8 +206,8 @@ class SobaVisualization extends Component {
     });
 
     // eslint-disable-next-line
-    fetch('http://localhost:8080/graphql', {
-    // fetch('https://graphql.prcapps.com/graphql', {
+    // fetch('http://localhost:8080/graphql', {
+    fetch('https://graphql.prcapps.com/graphql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
