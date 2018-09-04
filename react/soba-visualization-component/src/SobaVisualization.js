@@ -8,6 +8,9 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 
+// import { GoogleSpreadsheets } from 'google-spreadsheets';
+
+
 import SobaTable from './SobaTable';
 
 import '../css/SobaVisualization.css';
@@ -93,6 +96,68 @@ class SobaVisualization extends Component {
   }
 
   getData() {
+
+    if (true) {
+      console.log('test123');
+      // ID of the Google Spreadsheet
+      // const spreadsheetID = '1oyMRNYXrTCBLXh0166zN432k7Pg7TIvu5FrEa8znjQ4';
+      const spreadsheetID = '1bzdwPn0ZT_hTt80RNPDPBPBSloMQpmErVjvOn88GL-s';
+
+      const url = 'https://spreadsheets.google.com/feeds/list/' + spreadsheetID + '/od6/public/values?alt=json';
+
+      // const opts = { key: spreadsheetID, worksheet: 1 };
+      // console.log(GoogleSpreadsheets);
+      // GoogleSpreadsheets.rows(opts).then((data) => {
+      //   console.log('patrick', data);
+
+      // });
+
+
+      // eslint-disable-next-line
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // eslint-disable-next-line
+          'Accept': 'application/json',
+        },
+      })
+        .then(r => r.json())
+        .then((data) => {
+          console.log('full data', data);
+          if (data.feed.entry) {
+            const chartData = this.processGoogleSheetForChart(data.feed.entry);
+            this.setState({
+              chartDatasets: chartData[0],
+              chartLabels: chartData[1],
+            });
+            this.setState({
+              items: chartData[2],
+              errors: false,
+              loadingChart: false,
+            });
+          } else {
+            this.setState({
+              errors: 'Google Sheet Error',
+              loadingChart: false,
+              items: [],
+            });
+          }
+        });
+
+      // $('.results').prepend('<h2>'+this.gsx$name.$t+'</h2><p>'+this.gsx$age.$t+'</p>');
+
+      this.setState({
+        loadingChart: true,
+      });
+
+      return true;
+    }
+
+
+
+
+
     const dataset = this.state.dataset;
     const byDate = JSON.parse(this.state.byDateText);
     const groupBy = JSON.parse(this.state.groupByText);
@@ -184,6 +249,82 @@ class SobaVisualization extends Component {
     this.setState({
       [name]: value,
     });
+  }
+
+  processGoogleSheetForChart(data) {
+    console.log('dta', data);
+    const chartLabels = [];
+
+    console.log(this);
+
+    const chartDatasets = [];
+    const chartDatasetsLookup = {}; // subitem_label => idnex
+    const chartLabelLookup = {}; // key => index
+
+    const tableData = [];
+
+    const chartColors = ['rgba(0, 255, 0, 0.4)', 'rgba(0, 0, 255, 0.4)'];
+
+    data.forEach((row) => {
+      let activeYear = false;
+      const tableRow = {};
+
+      Object.keys(row).forEach((index) => {
+        console.log('test', index);
+
+        if (index.indexOf('gsx$') === 0) {
+          const key = index.replace('gsx$', '');
+          const value = row[index].$t;
+          console.log('val', value);
+
+          if (key === 'year') {
+            if (chartLabels.indexOf(key) === -1) {
+              chartLabelLookup[value] = chartLabels.length;
+              chartLabels.push(value);
+              activeYear = value;
+              tableRow.grouptitle = value;
+              tableRow.groupcategory = 'Year';
+              tableRow.count = '';
+              tableRow.subitems = [];
+            }
+          } else {
+            const lookupKey = key;
+
+            if (typeof chartDatasetsLookup[lookupKey] === typeof undefined) {
+              chartDatasetsLookup[lookupKey] = chartDatasets.length;
+
+              const dataset = {};
+              dataset.label = lookupKey;
+              dataset.coordinates = [];
+              dataset.data = [];
+              dataset.backgroundColor = chartColors[chartDatasets.length];
+
+              chartDatasets.push(dataset);
+            }
+
+            const targetIndex = chartDatasetsLookup[lookupKey];
+            const valueIndex = chartLabelLookup[activeYear];
+
+            tableRow.subitems[targetIndex] = {grouptitle: key, groupcategory: 'category', count: value, subitems: [] };
+
+            // chartDatasets[targetIndex].coordinates[valueIndex] = {
+            //   count: row2.count, year: row.grouptitle,
+            // };
+
+            console.log(lookupKey, valueIndex, chartDatasets, value);
+
+            chartDatasets[targetIndex].data[valueIndex] = value;
+          }
+        }
+      });
+      tableData.push(tableRow);
+    });
+
+    console.log('labels', chartLabels);
+    console.log('data', chartDatasets);
+    console.log('table', tableData);
+
+    return [chartDatasets, chartLabels, tableData];
   }
 
   processGraphQLForChart(data) {
