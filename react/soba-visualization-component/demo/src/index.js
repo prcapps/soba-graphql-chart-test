@@ -19,14 +19,10 @@ class Demo extends Component {
 		groupBy='["name_race"]'
 		/>
 	    <Example 
-      	title='patrickdemo 2'
-	    spreadsheetId='1bzdwPn0ZT_hTt80RNPDPBPBSloMQpmErVjvOn88GL-s'
-	    chartType='bar'  
-	    />
-	    <Example 
       	title='patrickdemo 3'
-	    spreadsheetId='1oyMRNYXrTCBLXh0166zN432k7Pg7TIvu5FrEa8znjQ4'
+	    spreadsheetId='1ZZbKNL4bxISIiAeUfsYZ-7ajfZPQ8VZ955WY0XP6ioE'
 	    chartType='bar'  
+	    showChartTypeSelect='0'
 	    />
 
     </div>

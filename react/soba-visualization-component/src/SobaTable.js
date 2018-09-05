@@ -40,8 +40,18 @@ class SobaRow extends Component {
       />
     );
 
-    let subitemsElm;
+    let showSubItems = false;
     if (subitems && subitems.length && subitems[0].groupcategory) {
+      showSubItems = true;
+    }
+    if(count == false){
+      className = '';
+      subItemExpand = '';
+      subitems[0].groupcategory = '';
+    }
+
+    let subitemsElm;
+    if (showSubItems) {
       subitemsElm = (
         <div className={className}>
           <strong>{ subitems[0].groupcategory }</strong>
@@ -51,6 +61,8 @@ class SobaRow extends Component {
     } else {
       subItemExpand = false;
     }
+
+    
 
     return (
       <tr>

@@ -14,6 +14,7 @@ export default class extends Component {
   			byDate={this.props.byDate}
   			groupBy={this.props.groupBy}
         spreadsheetId={this.props.spreadsheetId}
+        showChartTypeSelect={this.props.showChartTypeSelect}
   			/>
     </div>
   }

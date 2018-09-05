@@ -71,10 +71,11 @@ class SobaVisualization extends Component {
       chartType: 'line',
       dataMode: 'graphql',
       spreadsheetID: false,
+      showChartTypeSelect: true,
     };
 
     const {
-      count, dataset, byDate, chartType, groupBy, spreadsheetId,
+      count, dataset, byDate, chartType, groupBy, spreadsheetId, showChartTypeSelect,
     } = props;
 
     this.state.count = count;
@@ -86,7 +87,10 @@ class SobaVisualization extends Component {
     this.state.groupByText = groupBy;
     this.state.spreadsheetID = spreadsheetId;
 
-    console.log('patricktest', spreadsheetId);
+    if (typeof showChartTypeSelect !== typeof undefined) {
+      this.state.showChartTypeSelect = (showChartTypeSelect == true);
+    }
+
     if (spreadsheetId) {
       this.state.dataMode = 'google';
     }
@@ -139,7 +143,6 @@ class SobaVisualization extends Component {
       })
         .then(r => r.json())
         .then((data) => {
-          console.log('full data', data);
           if (data.feed.entry) {
             const chartData = this.processGoogleSheetForChart(data.feed.entry);
             this.setState({
@@ -199,16 +202,14 @@ class SobaVisualization extends Component {
           op: 'AND',
           filters:
             [
-              { key: 'search_initiated', op: '=', value: '1' },
-              { key: 'name_type', op: '=', value: 'DRIV' },
-              { key: 'sbi_submission_date', op: '>=', value: '2018-01-01' },
-              { key: 'date_occurred', op: '>=', value: '2018-01-01' },
+              // { key: 'search_initiated', op: '=', value: '1' },
+              // { key: 'name_type', op: '=', value: 'DRIV' },
+              // { key: 'sbi_submission_date', op: '>=', value: '2018-01-01' },
+              // { key: 'date_occurred', op: '>=', value: '2018-01-01' },
             ],
         },
       ];
       filters = [];
-
-      console.log('patrick', byDate, groupBy);
 
       const inputVariables = {
         dataset, byDate, groupBy, count, dateField, filters,
@@ -222,7 +223,7 @@ class SobaVisualization extends Component {
 
       const bodyString = JSON.stringify(bodyStringArgs);
 
-      console.log(bodyString);
+      // console.log(bodyString);
 
       this.setState({
         loadingChart: true,
@@ -241,8 +242,6 @@ class SobaVisualization extends Component {
       })
         .then(r => r.json())
         .then((data) => {
-          console.log('data', data);
-
           if (data.data.generic_month_stats) {
             const chartData = this.processGraphQLForChart(data.data.generic_month_stats);
             this.setState({
@@ -279,10 +278,9 @@ class SobaVisualization extends Component {
   }
 
   processGoogleSheetForChart(data) {
-    console.log('dta', data);
     const chartLabels = [];
 
-    console.log(this);
+    // console.log(this);
 
     const chartDatasets = [];
     const chartDatasetsLookup = {}; // subitem_label => idnex
@@ -348,15 +346,15 @@ class SobaVisualization extends Component {
       tableData.push(tableRow);
     });
 
-    console.log('labels', chartLabels);
-    console.log('data', chartDatasets);
-    console.log('table', tableData);
+    // console.log('labels', chartLabels);
+    // console.log('data', chartDatasets);
+    // console.log('table', tableData);
 
     return [chartDatasets, chartLabels, tableData];
   }
 
   processGraphQLForChart(data) {
-    console.log('result', data, this);
+    // console.log('result', data, this);
 
     const chartLabels = [];
 
@@ -427,7 +425,7 @@ class SobaVisualization extends Component {
 
     const {
       chartType, chartLabels, chartDatasets, loadingChart, items, groupByText, byDateText, count,
-      dateField, errors, dataMode,
+      dateField, errors, dataMode, showChartTypeSelect,
     } = this.state;
 
     const { title, dataset } = this.props;
@@ -545,6 +543,21 @@ class SobaVisualization extends Component {
       );
     }
 
+    let chartTypeSelect = false;
+
+    if (showChartTypeSelect) {
+      chartTypeSelect = (
+        <select
+          name="chartType"
+          value={chartType}
+          onChange={this.handleInputChange}
+        >
+          <option value="line">Line</option>
+          <option value="bar">Bar</option>
+        </select>
+      );
+    }
+
     return (
       <div className="soba-visualization">
         <div className="user-controls">
@@ -553,7 +566,7 @@ class SobaVisualization extends Component {
         </div>
         <Tabs>
           <TabPanel>
-            
+            {chartTypeSelect}
             {chart}
           </TabPanel>
           <TabPanel>
@@ -564,17 +577,7 @@ class SobaVisualization extends Component {
           </TabPanel>
           <TabList>
             <Tab>
-              Chart:&nbsp;
-              <select
-                name="chartType"
-                value={chartType}
-                onChange={this.handleInputChange}
-              >
-                <option value="line">Line</option>
-                <option value="bar">Bar</option>
-                <option value="doughnut">Doughnut</option>
-                <option value="pie">Pie</option>
-              </select>
+              Chart
             </Tab>
             <Tab>Table</Tab>
             {settingsTab}
