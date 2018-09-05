@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 
 import SobaVisualization from './SobaVisualization';
 
@@ -6,15 +6,17 @@ import SobaVisualization from './SobaVisualization';
 export default class extends Component {
   render() {
     return <div>
-      <SobaVisualization 
-      		title='Traffic Stops' 
-  			chartType='line'  
-  			dataset='coa_apd_traffic_stop_name_data_table' 
-  			count='traffic_stop_id' 
-  			byDate='["week"]' 
-  			groupBy='["name_race", "no_contraband_found"]'
+       <SobaVisualization 
+      	title={this.props.title}
+  			chartType={this.props.chartType}
+  			dataset={this.props.dataset}
+  			count={this.props.count}
+  			byDate={this.props.byDate}
+  			groupBy={this.props.groupBy}
+        spreadsheetId={this.props.spreadsheetId}
   			/>
     </div>
   }
 }
 
+// export * from './SobaVisualization';

@@ -50,6 +50,8 @@ const query = `query generic_month_stats($dataset: String!, $byDate: [String], $
   }
 }`;
 
+const chartColors = ['rgb(27,158,119)','rgb(217,95,2)','rgb(117,112,179)','rgb(231,41,138)','rgb(102,166,30)','rgb(230,171,2)'];
+
 class SobaVisualization extends Component {
   constructor(props) {
     super(props);
@@ -67,15 +69,27 @@ class SobaVisualization extends Component {
       chartDatasets: [],
       chartLabels: [],
       chartType: 'line',
+      dataMode: 'graphql',
+      spreadsheetID: false,
     };
 
-    this.state.count = props.count;
-    this.state.dataset = props.dataset;
-    this.state.byDate = props.byDate;
-    this.state.byDateText = props.byDate;
-    this.state.chartType = props.chartType;
-    this.state.groupBy = props.groupBy;
-    this.state.groupByText = props.groupBy;
+    const {
+      count, dataset, byDate, chartType, groupBy, spreadsheetId,
+    } = props;
+
+    this.state.count = count;
+    this.state.dataset = dataset;
+    this.state.byDate = byDate;
+    this.state.byDateText = byDate;
+    this.state.chartType = chartType;
+    this.state.groupBy = groupBy;
+    this.state.groupByText = groupBy;
+    this.state.spreadsheetID = spreadsheetId;
+
+    console.log('patricktest', spreadsheetId);
+    if (spreadsheetId) {
+      this.state.dataMode = 'google';
+    }
 
     this.handleInputChange = this.handleInputChange.bind(this);
   }
@@ -85,24 +99,25 @@ class SobaVisualization extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { byDateText, groupByText } = this.state;
+
     // console.log('update', prevState.byDateText, this.state.byDateText)
-    if (prevState.byDateText !== this.state.byDateText) {
+    if (prevState.byDateText !== byDateText) {
       this.getData();
     }
 
-    if (prevState.groupByText !== this.state.groupByText) {
+    if (prevState.groupByText !== groupByText) {
       this.getData();
     }
   }
 
   getData() {
+    const { dataMode } = this.state;
 
-    if (true) {
-      console.log('test123');
+    if (dataMode === 'google') {
+      const {  spreadsheetID } = this.state;
       // ID of the Google Spreadsheet
       // const spreadsheetID = '1oyMRNYXrTCBLXh0166zN432k7Pg7TIvu5FrEa8znjQ4';
-      const spreadsheetID = '1bzdwPn0ZT_hTt80RNPDPBPBSloMQpmErVjvOn88GL-s';
-
       const url = 'https://spreadsheets.google.com/feeds/list/' + spreadsheetID + '/od6/public/values?alt=json';
 
       // const opts = { key: spreadsheetID, worksheet: 1 };
@@ -152,100 +167,112 @@ class SobaVisualization extends Component {
       });
 
       return true;
+    } else {
+      const {
+        dataset, count, dateField, byDateText, groupByText,
+      } = this.state;
+
+      // const dataset = this.state.dataset;
+      let byDate = false;
+
+      if (byDateText) {
+        byDate = ['year'];
+      }
+
+      let groupBy = false;
+      if ( groupByText ) {
+        groupBy = ['name_race'];
+      }
+
+      // const count = this.state.count;
+      // const dateField = this.state.dateField;
+
+      let filters = [
+        // {op:"OR",
+        //   filters:
+        //     [
+        //       {key: "name_race", op:"=",value:"B"},
+        //       {key: "name_race", op:"=",value:"W"}
+        //     ]
+        // },
+        {
+          op: 'AND',
+          filters:
+            [
+              { key: 'search_initiated', op: '=', value: '1' },
+              { key: 'name_type', op: '=', value: 'DRIV' },
+              { key: 'sbi_submission_date', op: '>=', value: '2018-01-01' },
+              { key: 'date_occurred', op: '>=', value: '2018-01-01' },
+            ],
+        },
+      ];
+      filters = [];
+
+      console.log('patrick', byDate, groupBy);
+
+      const inputVariables = {
+        dataset, byDate, groupBy, count, dateField, filters,
+      };
+
+      console.log(inputVariables);
+      const bodyStringArgs = {
+        query,
+        variables: inputVariables,
+      };
+
+      const bodyString = JSON.stringify(bodyStringArgs);
+
+      console.log(bodyString);
+
+      this.setState({
+        loadingChart: true,
+      });
+
+      // eslint-disable-next-line
+      // fetch('http://localhost:8080/graphql', {
+      fetch('https://graphql.prcapps.com/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // eslint-disable-next-line
+          'Accept': 'application/json',
+        },
+        body: bodyString,
+      })
+        .then(r => r.json())
+        .then((data) => {
+          console.log('data', data);
+
+          if (data.data.generic_month_stats) {
+            const chartData = this.processGraphQLForChart(data.data.generic_month_stats);
+            this.setState({
+              chartDatasets: chartData[0],
+              chartLabels: chartData[1],
+            });
+            this.setState({
+              items: data.data.generic_month_stats,
+              errors: false,
+              loadingChart: false,
+            });
+          } else {
+            this.setState({
+              errors: data.errors[0].message,
+              loadingChart: false,
+              items: [],
+            });
+          }
+        });
     }
 
 
-
-
-
-    const dataset = this.state.dataset;
-    const byDate = JSON.parse(this.state.byDateText);
-    const groupBy = JSON.parse(this.state.groupByText);
-    const count = this.state.count;
-    const dateField = this.state.dateField;
-
-    const filters = [
-      // {op:"OR",
-      //   filters:
-      //     [
-      //       {key: "name_race", op:"=",value:"B"},
-      //       {key: "name_race", op:"=",value:"W"}
-      //     ]
-      // },
-      {
-        op: 'AND',
-        filters:
-          [
-            { key: 'search_initiated', op: '=', value: '1' },
-            { key: 'name_type', op: '=', value: 'DRIV' },
-            { key: 'sbi_submission_date', op: '>=', value: '2018-01-01' },
-            { key: 'date_occurred', op: '>=', value: '2018-01-01' },
-          ],
-      },
-    ];
-
-    console.log(this.state.byDateText);
-
-    const inputVariables = {
-      dataset, byDate, groupBy, count, dateField, filters,
-    };
-
-    console.log(inputVariables);
-    const bodyString = JSON.stringify(
-      {
-        query,
-        variables: inputVariables,
-      },
-    );
-
-
-    console.log(bodyString);
-
-    this.setState({
-      loadingChart: true,
-    });
-
-    // eslint-disable-next-line
-    // fetch('http://localhost:8080/graphql', {
-    fetch('https://graphql.prcapps.com/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // eslint-disable-next-line
-        'Accept': 'application/json',
-      },
-      body: bodyString,
-    })
-      .then(r => r.json())
-      .then((data) => {
-        console.log('data', data);
-
-        if (data.data.generic_month_stats) {
-          const chartData = this.processGraphQLForChart(data.data.generic_month_stats);
-          this.setState({
-            chartDatasets: chartData[0],
-            chartLabels: chartData[1],
-          });
-          this.setState({
-            items: data.data.generic_month_stats,
-            errors: false,
-            loadingChart: false,
-          });
-        } else {
-          this.setState({
-            errors: data.errors[0].message,
-            loadingChart: false,
-            items: [],
-          });
-        }
-      });
   }
 
   handleInputChange(event) {
-    const target = event.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const { target } = event;
     const name = target.name;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
 
+    console.log('input change', name, value, target, event);
     this.setState({
       [name]: value,
     });
@@ -263,19 +290,18 @@ class SobaVisualization extends Component {
 
     const tableData = [];
 
-    const chartColors = ['rgba(0, 255, 0, 0.4)', 'rgba(0, 0, 255, 0.4)'];
 
     data.forEach((row) => {
       let activeYear = false;
       const tableRow = {};
 
       Object.keys(row).forEach((index) => {
-        console.log('test', index);
+        // console.log('test', index);
 
         if (index.indexOf('gsx$') === 0) {
           const key = index.replace('gsx$', '');
           const value = row[index].$t;
-          console.log('val', value);
+          // console.log('val', value);
 
           if (key === 'year') {
             if (chartLabels.indexOf(key) === -1) {
@@ -305,13 +331,15 @@ class SobaVisualization extends Component {
             const targetIndex = chartDatasetsLookup[lookupKey];
             const valueIndex = chartLabelLookup[activeYear];
 
-            tableRow.subitems[targetIndex] = {grouptitle: key, groupcategory: 'category', count: value, subitems: [] };
+            tableRow.subitems[targetIndex] = {
+              grouptitle: key, groupcategory: 'category', count: value, subitems: [],
+            };
 
             // chartDatasets[targetIndex].coordinates[valueIndex] = {
             //   count: row2.count, year: row.grouptitle,
             // };
 
-            console.log(lookupKey, valueIndex, chartDatasets, value);
+            // console.log(lookupKey, valueIndex, chartDatasets, value);
 
             chartDatasets[targetIndex].data[valueIndex] = value;
           }
@@ -339,8 +367,6 @@ class SobaVisualization extends Component {
 
     const chartDatasets = [];
     const chartDatasetsLookup = {}; // subitem_label => idnex
-
-    const chartColors = ['rgba(0, 255, 0, 0.4)', 'rgba(0, 0, 255, 0.4)'];
 
     data.forEach((row, valueIndex) => {
       row.subitems.forEach((row2) => {
@@ -383,7 +409,8 @@ class SobaVisualization extends Component {
     //   margin: {top: 50, left: 50, bottom: 50, right: 50},
     //   axes: [
     //     { key: 'yAxis', orient: 'left', className: 'yscale', name: 'CountAxis' },
-    //     { key: 'xAxis', orient: 'bottom', className: 'xscale', name: 'TimeAxis', tickValues : this.state.chartLabels }
+    //     { key: 'xAxis', orient: 'bottom', className: 'xscale',
+    //        name: 'TimeAxis', tickValues : this.state.chartLabels }
     //   ],
     //   hoverAnnotation : true,
     // };
@@ -398,9 +425,17 @@ class SobaVisualization extends Component {
     //     </div>}
     //       />
 
+    const {
+      chartType, chartLabels, chartDatasets, loadingChart, items, groupByText, byDateText, count,
+      dateField, errors, dataMode,
+    } = this.state;
+
+    const { title, dataset } = this.props;
+
+
     const testData = {
-      labels: this.state.chartLabels,
-      datasets: this.state.chartDatasets,
+      labels: chartLabels,
+      datasets: chartDatasets,
     };
 
     const chartOptions = {
@@ -418,121 +453,134 @@ class SobaVisualization extends Component {
 
     let chart = <Bar data={testData} options={chartOptions} />;
 
-    if (this.state.chartType === 'line') {
+    if (chartType === 'line') {
       chart = <Line data={testData} options={chartOptions} />;
-    } else if (this.state.chartType === 'doughnut') {
+    } else if (chartType === 'doughnut') {
       chart = <Doughnut data={testData} options={chartOptions} />;
-    } else if (this.state.chartType == 'pie') {
+    } else if (chartType === 'pie') {
       chart = <Pie data={testData} options={chartOptions} />;
     }
 
-    if (this.state.loadingChart) {
+    if (loadingChart) {
       chart = <div className="loading-container"><h2>Loading...</h2></div>;
     }
 
-    let table = <SobaTable items={this.state.items} />;
+    let table = <SobaTable items={items} />;
 
-    if (this.state.loadingChart) {
+    if (loadingChart) {
       table = <div className="loading-container"><h2>Loading...</h2></div>;
+    }
+
+    let dateRangeFilter = false;
+
+    if (dataMode === 'graphql') {
+      dateRangeFilter = (
+        <select
+          name="byDateText"
+          value={byDateText}
+          onChange={this.handleInputChange}
+        >
+          <option value='["year"]'>Year</option>
+          <option value='["month"]'>Month</option>
+          <option value='["week"]'>Week</option>
+          <option value='["day"]'>Day of Month</option>
+          <option value='["dow"]'>Day of Week</option>
+        </select>
+      );
+    }
+
+    let settings = false;
+    let settingsTab = false;
+    if (dataMode === 'graphql') {
+      settingsTab = <Tab>Settings</Tab>;
+
+      settings = (
+        <div className="inputs">
+          <div>
+            <label>Dataset:</label>
+            <input
+              name="dataset"
+              type="text"
+              value={dataset}
+              onChange={this.handleInputChange}
+            />
+          </div>
+          <div>
+            <label>Count Field:</label>
+            <input
+              name="count"
+              type="text"
+              value={count}
+              onChange={this.handleInputChange}
+            />
+          </div>
+          <div>
+            <label>Date Field:</label>
+            <input
+              name="dateField"
+              type="text"
+              value={dateField}
+              onChange={this.handleInputChange}
+            />
+          </div>
+          <div>
+            <label>Group By:</label>
+            <input
+              name="groupByText"
+              type="text"
+              value={groupByText}
+              onChange={this.handleInputChange}
+            />
+          </div>
+          <div>
+            <label>Date Field:</label>
+            <input
+              name="byDateText"
+              type="text"
+              value={byDateText}
+              onChange={this.handleInputChange}
+            />
+          </div>
+        </div>
+      );
     }
 
     return (
       <div className="soba-visualization">
         <div className="user-controls">
-          <h1>{ this.props.title }</h1>
-          <h4>
-            {this.props.dataset}
-            &nbsp; group by &nbsp;
-            {this.state.groupByText}
-            &nbsp; and date &nbsp;
-            {this.state.byDateText}
-          </h4>
-          <select
-            name="byDateText"
-            value={this.state.byDateText}
-            onChange={this.handleInputChange}
-          >
-
-            <option value='["year"]'>Year</option>
-            <option value='["month"]'>Month</option>
-            <option value='["week"]'>Week</option>
-            <option value='["day"]'>Day of Month</option>
-            <option value='["dow"]'>Day of Week</option>
-          </select>
+          <h1>{ title }</h1>
+          {dateRangeFilter}
         </div>
         <Tabs>
           <TabPanel>
-            <select
-              name="chartType"
-              value={this.state.chartType}
-              onChange={this.handleInputChange}
-            >
-              <option value="line">Line Chart</option>
-              <option value="bar">Bar Chart</option>
-              <option value="doughnut">Doughnut Chart</option>
-              <option value="pie">Pie Chart</option>
-            </select>
+            
             {chart}
           </TabPanel>
           <TabPanel>
             { table }
           </TabPanel>
           <TabPanel>
-            <div className="inputs">
-              <div>
-                <label>Dataset:</label>
-                <input
-                  name="dataset"
-                  type="text"
-                  value={this.state.dataset}
-                  onChange={this.handleInputChange}
-                  />
-              </div>
-              <div>
-                <label>Count Field:</label>
-                <input
-                  name="count"
-                  type="text"
-                  value={this.state.count}
-                  onChange={this.handleInputChange}
-                />
-              </div>
-              <div>
-                <label>Date Field:</label>
-                <input
-                  name="dateField"
-                  type="text"
-                  value={this.state.dateField}
-                  onChange={this.handleInputChange}
-                />
-              </div>
-              <div>
-                <label>Group By:</label>
-                <input
-                  name="groupByText"
-                  type="text"
-                  value={this.state.groupByText}
-                  onChange={this.handleInputChange}
-                />
-              </div>
-              <div>
-                <label>Date Field:</label>
-                <input
-                  name="byDateText"
-                  type="text"
-                  value={this.state.byDateText}
-                  onChange={this.handleInputChange}
-                />
-              </div>
-            </div>
+            {settings}
           </TabPanel>
           <TabList>
-            <Tab>Chart</Tab>
+            <Tab>
+              Chart:&nbsp;
+              <select
+                name="chartType"
+                value={chartType}
+                onChange={this.handleInputChange}
+              >
+                <option value="line">Line</option>
+                <option value="bar">Bar</option>
+                <option value="doughnut">Doughnut</option>
+                <option value="pie">Pie</option>
+              </select>
+            </Tab>
             <Tab>Table</Tab>
-            <Tab>Settings</Tab>
+            {settingsTab}
           </TabList>
         </Tabs>
-        { this.state.errors }
+        { errors }
       </div>
     );
   }
