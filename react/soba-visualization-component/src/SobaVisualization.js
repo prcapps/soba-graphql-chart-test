@@ -50,7 +50,7 @@ const query = `query generic_month_stats($dataset: String!, $byDate: [String], $
   }
 }`;
 
-const chartColors = ['rgb(27,158,119)','rgb(217,95,2)','rgb(117,112,179)','rgb(231,41,138)','rgb(102,166,30)','rgb(230,171,2)'];
+const chartColors = ['rgba(27,158,119, 0.8)','rgba(217,95,2, 0.8)','rgb(117,112,179)','rgb(231,41,138)','rgb(102,166,30)','rgb(230,171,2)'];
 
 class SobaVisualization extends Component {
   constructor(props) {
