@@ -9,31 +9,11 @@ class Demo extends Component {
 
   render() {
   	const filterObj = {
-		op: "AND", 
-		groups:
-			[
-				{
-					op: "AND", 
-					filters: 
-					[
-						{key: "search_initiated", op: "=", value: "1"}, 
-						{key: "EXTRACT(year FROM date_occurred)", op: "=", value: "2018"}, 
-					]
-				},
-				{
-					op: "OR", 
-					filters: 
-					[
-						{key: "name_race", op: "=", value: "B"}, 
-						{key: "name_race", op: "=", value: "W"}
-					]
-				}
-			]
+		filters:[ { key: "year", dateField: "date_occurred", op: "=", value: "2018"} ]
 	};
     return <div>
       <h1>soba-visualization Demo</h1>
-      
-
+       
       <Example 
       	title='APD Traffic Searches by Race, 2018'
 		chartType='line'  

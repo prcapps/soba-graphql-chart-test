@@ -312,9 +312,11 @@ class SobaVisualization extends Component {
 
       groupBy.push({column: byDate[0], dateField: dateField});
 
-      groupByOld.map((row) => {
-        groupBy.push({column: row});
-      });
+      if(groupByOld){
+        groupByOld.map((row) => {
+          groupBy.push({column: row});
+        });        
+      }
 
       const inputVariables = {
         dataset, fields, groupBy, filters,
@@ -335,8 +337,8 @@ class SobaVisualization extends Component {
       });
 
       // eslint-disable-next-line
-      fetch('http://localhost:8080/graphql', {
-      // fetch('https://graphql.prcapps.com/graphql', {
+      // fetch('http://localhost:8080/graphql', {
+      fetch('https://graphql.prcapps.com/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -598,6 +600,16 @@ class SobaVisualization extends Component {
 
     const chartOptions = {
       scales: {
+        // xAxes:[{
+        //     ticks: {
+        //         callback: function(value) {
+        //           if(value.length > 10){
+
+        //             return value.substr(0, 10) + "...";//truncate
+        //           }
+        //         },
+        //     }
+        // }],
         yAxes: [
           {
             ticks: {
@@ -652,7 +664,6 @@ class SobaVisualization extends Component {
     let settingsPanel = false;
     if (dataMode === 'graphql') {
       settingsTab = <Tab>Settings</Tab>;
-      settingsPanel = <TabPanel>{settings}</TabPanel>;
       settings = (
         <div className="inputs">
           <div>
@@ -702,6 +713,8 @@ class SobaVisualization extends Component {
           </div>
         </div>
       );
+
+      settingsPanel = <TabPanel>{settings}</TabPanel>;
     }
 
     let chartTypeSelect = false;
