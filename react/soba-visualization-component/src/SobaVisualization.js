@@ -598,18 +598,68 @@ class SobaVisualization extends Component {
       datasets: chartDatasets,
     };
 
-    const chartOptions = {
-      scales: {
-        // xAxes:[{
-        //     ticks: {
-        //         callback: function(value) {
-        //           if(value.length > 10){
+    var formatLabel = function(str, maxwidth){
+    var sections = [];
+    var words = str.split(" ");
+    var temp = "";
 
-        //             return value.substr(0, 10) + "...";//truncate
-        //           }
-        //         },
-        //     }
-        // }],
+    words.forEach(function(item, index){
+        if(temp.length > 0)
+        {
+            var concat = temp + ' ' + item;
+
+            if(concat.length > maxwidth){
+                sections.push(temp);
+                temp = "";
+            }
+            else{
+                if(index == (words.length-1))
+                {
+                    sections.push(concat);
+                    return;
+                }
+                else{
+                    temp = concat;
+                    return;
+                }
+            }
+        }
+
+        if(index == (words.length-1))
+        {
+            sections.push(item);
+            return;
+        }
+
+        if(item.length < maxwidth) {
+            temp = item;
+        }
+        else {
+            sections.push(item);
+        }
+
+    });
+
+    return sections;
+}
+
+    const chartOptions = {
+      // maintainAspectRatio: false,
+      scales: {
+        xAxes:[{
+            ticks: {
+                callback: function(value) {
+                  if(value.length > 10){
+                    var test=  formatLabel(value, 20);
+                    return test;
+                    // return value.substr(0, 10) + "...";//truncate
+                  }
+                  else{
+                    return value;
+                  }
+                },
+            }
+        }],
         yAxes: [
           {
             ticks: {
