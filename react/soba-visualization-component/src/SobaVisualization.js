@@ -292,7 +292,7 @@ class SobaVisualization extends Component {
       const groupBy = [];
 
       if(byDate.length){
-        groupBy.push({column: byDate[0], dateField: dateField});
+        groupBy.push({column: byDate[0], dateField: dateField, sortDirection: 'ASC'});
       }
 
       if(groupByOld){
