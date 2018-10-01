@@ -48,10 +48,27 @@ class SobaTable extends Component {
                 columns={columns} 
                 showPagination={false}
                 defaultPageSize={row.original.subitems.length}
+                SubComponent={(row) => {
+                  console.log(row.original.subitems);
+
+                  if (row.original.subitems.length == 0 || row.original.subitems[0].groupCategory == "undefined") {
+                    return;
+                  }
+
+                  columns[0].Header = row.original.subitems[0].groupCategory;
+
+                  return (
+                    <ReactTable
+                      data={row.original.subitems}
+                      columns={columns} 
+                      showPagination={false}
+                      defaultPageSize={row.original.subitems.length}
+                    />
+                  );
+                }}
               />
             );
-          }
-          }
+          }}
           showPagination={false}
           defaultPageSize={data.length}
         />

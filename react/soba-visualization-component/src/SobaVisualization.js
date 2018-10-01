@@ -104,10 +104,14 @@ class SobaVisualization extends Component {
       spreadsheetID: false,
       showChartTypeSelect: true,
       gapiReady: false,
+      datasetLabels: false,
+      labelX: false,
+      labelY: false,
     };
 
     const {
       count, dataset, byDate, chartType, groupBy, spreadsheetId, showChartTypeSelect, filters,
+      datasetLabels, labelX, labelY
     } = props;
 
     this.state.count = count;
@@ -119,8 +123,10 @@ class SobaVisualization extends Component {
     this.state.groupByText = groupBy;
     this.state.spreadsheetID = spreadsheetId;
     this.state.filters = filters;
+    this.state.datasetLabels = datasetLabels;
+    this.state.labelX = labelX;
+    this.state.labelY = labelY;
 
-    console.log('patrick test', filters);
 
     if (typeof showChartTypeSelect !== typeof undefined) {
       this.state.showChartTypeSelect = (showChartTypeSelect == true);
@@ -322,7 +328,7 @@ class SobaVisualization extends Component {
         dataset, fields, groupBy, filters,
       };
 
-      console.log(inputVariables);
+
       const bodyStringArgs = {
         query,
         variables: inputVariables,
@@ -331,6 +337,7 @@ class SobaVisualization extends Component {
       const bodyString = JSON.stringify(bodyStringArgs);
 
       console.log('input', inputVariables);
+      console.log(bodyString);
 
       this.setState({
         loadingChart: true,
@@ -518,12 +525,13 @@ class SobaVisualization extends Component {
     return [chartDatasets, chartLabels, tableData];
   }
 
+  // eslint-disable-next-line
   processGraphQLForChart(data) {
-    const chartLabels = [];
-
+    let chartLabels = [];
+    
     data.forEach((row) => {
       chartLabels.push(row.groupTitle);
-    });
+    });      
 
     const chartDatasets = [];
     const chartDatasetsLookup = {}; // subitem_label => idnex
@@ -535,8 +543,16 @@ class SobaVisualization extends Component {
         if (typeof chartDatasetsLookup[lookupKey] === typeof undefined) {
           chartDatasetsLookup[lookupKey] = chartDatasets.length;
 
+          let datasetLabel = false;
+          if (this.state.datasetLabels && 
+              typeof this.state.datasetLabels[row2.groupTitle.trim()] !== typeof undefined) {
+            datasetLabel = this.state.datasetLabels[row2.groupTitle.trim()];
+          } else {
+            datasetLabel = row2.groupTitle;
+          }
+
           const dataset = {};
-          dataset.label = row2.groupTitle;
+          dataset.label = datasetLabel;
           dataset.coordinates = [];
           dataset.data = [];
           dataset.backgroundColor = chartColors[chartDatasets.length];
@@ -599,49 +615,49 @@ class SobaVisualization extends Component {
     };
 
     var formatLabel = function(str, maxwidth){
-    var sections = [];
-    var words = str.split(" ");
-    var temp = "";
+        var sections = [];
+        var words = str.split(" ");
+        var temp = "";
 
-    words.forEach(function(item, index){
-        if(temp.length > 0)
-        {
-            var concat = temp + ' ' + item;
+        words.forEach(function(item, index){
+            if(temp.length > 0)
+            {
+                var concat = temp + ' ' + item;
 
-            if(concat.length > maxwidth){
-                sections.push(temp);
-                temp = "";
-            }
-            else{
-                if(index == (words.length-1))
-                {
-                    sections.push(concat);
-                    return;
+                if(concat.length > maxwidth){
+                    sections.push(temp);
+                    temp = "";
                 }
                 else{
-                    temp = concat;
-                    return;
+                    if(index == (words.length-1))
+                    {
+                        sections.push(concat);
+                        return;
+                    }
+                    else{
+                        temp = concat;
+                        return;
+                    }
                 }
             }
-        }
 
-        if(index == (words.length-1))
-        {
-            sections.push(item);
-            return;
-        }
+            if(index == (words.length-1))
+            {
+                sections.push(item);
+                return;
+            }
 
-        if(item.length < maxwidth) {
-            temp = item;
-        }
-        else {
-            sections.push(item);
-        }
+            if(item.length < maxwidth) {
+                temp = item;
+            }
+            else {
+                sections.push(item);
+            }
 
-    });
+        });
 
-    return sections;
-}
+        return sections;
+    }
 
     const chartOptions = {
       // maintainAspectRatio: false,
@@ -662,6 +678,7 @@ class SobaVisualization extends Component {
         }],
         yAxes: [
           {
+            scaleLabel: {labelString: 'test', display: true},
             ticks: {
               beginAtZero: true,
             },
@@ -670,6 +687,20 @@ class SobaVisualization extends Component {
         ],
       },
     };
+
+    let byDate = false;
+    if (this.state.byDateText) {
+      byDate = JSON.parse(this.state.byDateText);
+    }
+
+    if (byDate && byDate.length) {
+      chartOptions.scales.xAxes[0].scaleLabel = {display: true, labelString: JSON.parse(this.state.byDateText)[0] };
+    }
+
+    if (this.state.labelY) {
+      chartOptions.scales.yAxes[0].scaleLabel = {display: true, labelString: this.state.labelY };
+    }
+    console.log(this.state, chartOptions);
 
     let chart = <Bar data={testData} options={chartOptions} />;
 
@@ -778,6 +809,7 @@ class SobaVisualization extends Component {
         >
           <option value="line">Line</option>
           <option value="bar">Bar</option>
+          <option value="pie">Pie</option>
         </select>
       );
     }
@@ -789,6 +821,13 @@ class SobaVisualization extends Component {
           {dateRangeFilter}
         </div>
         <Tabs>
+          <TabList>
+            <Tab>
+              Chart
+            </Tab>
+            <Tab>Table</Tab>
+            {settingsTab}
+          </TabList>
           <TabPanel>
             {chartTypeSelect}
             {chart}
@@ -797,13 +836,7 @@ class SobaVisualization extends Component {
             { table }
           </TabPanel>
           {settingsPanel}
-          <TabList>
-            <Tab>
-              Chart
-            </Tab>
-            <Tab>Table</Tab>
-            {settingsTab}
-          </TabList>
+          
         </Tabs>
         { errors }
       </div>

@@ -16,6 +16,9 @@ export default class extends Component {
         filters={this.props.filters}
         spreadsheetId={this.props.spreadsheetId}
         showChartTypeSelect={this.props.showChartTypeSelect}
+        datasetLabels={this.props.datasetLabels}
+        labelX={this.props.labelX}
+        labelY={this.props.labelY}
   			/>
     </div>
   }

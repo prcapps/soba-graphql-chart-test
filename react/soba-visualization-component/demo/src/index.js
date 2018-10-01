@@ -8,30 +8,94 @@ class Demo extends Component {
 
 
   render() {
-  	const filterObj = {
-		filters:[ { key: "year", dateField: "date_occurred", op: "=", value: "2018"} ]
-	};
+    const filterObj = {
+      "op": "AND",
+      "groups":
+  			[
+  				{
+  					"filters":[ 
+  						{ 
+  							"key": "year", "dateField": "date_occurred", 
+	  						"op": "=", "value": "2018"
+	  					}
+	  					]
+  				},
+  				{
+  					"op":"OR",
+  					"filters": [ 
+  						{"key": "name_race", "op": "=", "value": "W"},
+						{ "key": "name_race", "op": "=", "value": "B"}
+  					]
+  				}
+			]
+  	};
+
+    const filterObj2 = {
+      "op": "AND",
+      "groups":
+        [
+          {
+            "filters":[ 
+              { 
+                "key": "year", "dateField": "date_occurred", 
+                "op": "=", "value": "2018"
+              }
+              ]
+          },
+          {
+            "op":"OR",
+            "filters": [ 
+              {"key": "name_race", "op": "=", "value": "W"},
+            { "key": "name_race", "op": "=", "value": "B"}
+            ]
+          },
+          {
+            "filters": [ 
+              {"key": "search_initiated", "op": "=", "value": "1"}
+            ]
+          }
+      ]
+    };
+
+    let datasetLabels = {'W' : 'White', 'B': 'Black'};
+
     return <div>
       <h1>soba-visualization Demo</h1>
        
       <Example 
+        title='patrickdemo 3'
+      spreadsheetId='1ZZbKNL4bxISIiAeUfsYZ-7ajfZPQ8VZ955WY0XP6ioE'
+      chartType='bar'  
+      showChartTypeSelect='1'
+      />
+
+	<Example 
       	title='APD Traffic Searches by Race, 2018'
 		chartType='line'  
 		dataset='coa_apd_traffic_stop_name_data_table' 
 		count='traffic_stop_id' 
 		byDate='["month"]' 
-		groupBy='["name_race"]'
-		filters={filterObj}
+		groupBy='["name_race", "no_contraband_found"]'
+		filters={filterObj2}
+    datasetLabels={datasetLabels}
+    labelX="Month"
+    labelY="Number of searches"
 		/>
-	    <Example 
-      	title='patrickdemo 3'
-	    spreadsheetId='1ZZbKNL4bxISIiAeUfsYZ-7ajfZPQ8VZ955WY0XP6ioE'
-	    chartType='bar'  
-	    showChartTypeSelect='0'
-	    />
-
     </div>
   }
+
+// <Example 
+//         title='APD Traffic Stops by Race, 2018'
+//     chartType='line'  
+//     dataset='coa_apd_traffic_stop_name_data_table' 
+//     count='traffic_stop_id' 
+//     byDate='["month"]' 
+//     groupBy='["name_race"]'
+//     filters={filterObj}
+//     />
+
+
+   
 }
 
 
