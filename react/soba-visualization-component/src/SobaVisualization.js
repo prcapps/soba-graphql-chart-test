@@ -287,42 +287,21 @@ class SobaVisualization extends Component {
         groupByOld = JSON.parse(groupByText);// ['name_race'];
       }
 
-      // const count = this.state.count;
-      // const dateField = this.state.dateField;
-
-      // let filters = 
-      //   // {op:"OR",
-      //   //   filters:
-      //   //     [
-      //   //       {key: "name_race", op:"=",value:"B"},
-      //   //       {key: "name_race", op:"=",value:"W"}
-      //   //     ]
-      //   // },
-      //   {
-      //     op: 'AND',
-      //     filters:
-      //       [
-      //         { key: 'search_initiated', op: '=', value: '1' },
-      //         { key: 'name_type', op: '=', value: 'DRIV' },
-      //         { key: 'sbi_submission_date', op: '>=', value: '2018-01-01' },
-      //         { key: 'date_occurred', op: '>=', value: '2018-01-01' },
-      //       ],
-      //   };
-
-      // filters = filters.replace('"', "'");
-      console.log('filters', filters, groupBy);
-
       const fields = [{column: count}];
 
       const groupBy = [];
 
-      groupBy.push({column: byDate[0], dateField: dateField});
+      if(byDate.length){
+        groupBy.push({column: byDate[0], dateField: dateField});
+      }
 
       if(groupByOld){
         groupByOld.map((row) => {
           groupBy.push({column: row});
         });        
       }
+
+      console.log('patrick123', byDate, dateField, groupBy);
 
       const inputVariables = {
         dataset, fields, groupBy, filters,
@@ -566,9 +545,12 @@ class SobaVisualization extends Component {
           count: row2.fields[0].value, year: row.groupTitle,
         };
 
+        console.log(row2.fields);
         chartDatasets[targetIndex].data[valueIndex] = row2.fields[0].value;
       });
     });
+
+    console.log('data', chartDatasets);
 
     return [chartDatasets, chartLabels];
   }
@@ -678,7 +660,6 @@ class SobaVisualization extends Component {
         }],
         yAxes: [
           {
-            scaleLabel: {labelString: 'test', display: true},
             ticks: {
               beginAtZero: true,
             },
@@ -700,7 +681,6 @@ class SobaVisualization extends Component {
     if (this.state.labelY) {
       chartOptions.scales.yAxes[0].scaleLabel = {display: true, labelString: this.state.labelY };
     }
-    console.log(this.state, chartOptions);
 
     let chart = <Bar data={testData} options={chartOptions} />;
 

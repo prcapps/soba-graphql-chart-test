@@ -57,32 +57,78 @@ class Demo extends Component {
       ]
     };
 
+    const filterObj3 = {
+      "op": "AND",
+      "groups":
+        [
+          {
+            "op":"OR",
+            "filters": [ 
+              {"key": "name_race", "op": "=", "value": "W"},
+            { "key": "name_race", "op": "=", "value": "B"}
+            ]
+          },
+          {
+            "op":"AND",
+            "filters": [ 
+              {"key": "search_initiated", "op": "=", "value": "1"},
+              {"key": "t_search_consent", "op": "=", "value": "1"},
+              { 
+                "key": "year", "dateField": "date_occurred", 
+                "op": "=", "value": "2018"
+              }
+            ]
+          }
+      ]
+    };
+
     let datasetLabels = {'W' : 'White', 'B': 'Black'};
 
     return <div>
       <h1>soba-visualization Demo</h1>
-       
-      <Example 
-        title='patrickdemo 3'
-      spreadsheetId='1ZZbKNL4bxISIiAeUfsYZ-7ajfZPQ8VZ955WY0XP6ioE'
-      chartType='bar'  
-      showChartTypeSelect='1'
+       <Example 
+          title='APD Traffic Searches by Race, 2018'
+      chartType='line'  
+      dataset='coa_apd_traffic_stop_name_data_table' 
+      count='traffic_stop_id' 
+      byDate='["month"]' 
+      groupBy='["name_race", "no_contraband_found"]'
+      filters={filterObj2}
+      datasetLabels={datasetLabels}
+      labelX="Month"
+      labelY="Number of searches"
       />
-
-	<Example 
-      	title='APD Traffic Searches by Race, 2018'
-		chartType='line'  
-		dataset='coa_apd_traffic_stop_name_data_table' 
-		count='traffic_stop_id' 
-		byDate='["month"]' 
-		groupBy='["name_race", "no_contraband_found"]'
-		filters={filterObj2}
-    datasetLabels={datasetLabels}
-    labelX="Month"
-    labelY="Number of searches"
-		/>
+      
     </div>
   }
+
+
+// <Example 
+//         title='APD Traffic Consent Searches by Race, 2018'
+//         chartType='line'  
+//         dataset='coa_apd_traffic_stop_name_data_table' 
+//         count='traffic_stop_id' 
+//         groupBy='["name_race"]'
+//         filters={filterObj3}
+//         datasetLabels={datasetLabels}
+//         labelY="Number of searches"
+//         />
+
+// <Example 
+//         title='patrickdemo 3'
+//       spreadsheetId='1ZZbKNL4bxISIiAeUfsYZ-7ajfZPQ8VZ955WY0XP6ioE'
+//       chartType='bar'  
+//       showChartTypeSelect='1'
+//       />
+
+   
+
+
+
+
+
+
+
 
 // <Example 
 //         title='APD Traffic Stops by Race, 2018'
