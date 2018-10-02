@@ -642,7 +642,7 @@ class SobaVisualization extends Component {
     }
 
     const chartOptions = {
-      // maintainAspectRatio: false,
+      maintainAspectRatio: false,
       scales: {
         xAxes:[{
             ticks: {
