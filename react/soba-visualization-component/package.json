@@ -1,6 +1,6 @@
 {
   "name": "soba-visualization",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "description": "soba-visualization React component",
   "main": "lib/index.js",
   "module": "es/index.js",

@@ -794,22 +794,28 @@ class SobaVisualization extends Component {
       );
     }
 
+    const pStyle = {
+
+  float: 'right',
+  display: 'block'
+};
+
     return (
       <div className="soba-visualization">
-        <div className="user-controls">
-          <h1>{ title }</h1>
-          {dateRangeFilter}
-        </div>
+        <h1>{ title }</h1>
         <Tabs>
+          <div className="user-controls" style={pStyle}>
+            {chartTypeSelect}
+            {dateRangeFilter}
+          </div>
           <TabList>
             <Tab>
-              Chart
+              Chart: 
             </Tab>
             <Tab>Table</Tab>
             {settingsTab}
           </TabList>
           <TabPanel>
-            {chartTypeSelect}
             {chart}
           </TabPanel>
           <TabPanel>
