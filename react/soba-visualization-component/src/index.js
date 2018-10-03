@@ -15,10 +15,12 @@ export default class extends Component {
   			groupBy={this.props.groupBy}
         filters={this.props.filters}
         spreadsheetId={this.props.spreadsheetId}
+        spreadsheetChartColumns={this.props.spreadsheetChartColumns}
         showChartTypeSelect={this.props.showChartTypeSelect}
         datasetLabels={this.props.datasetLabels}
         labelX={this.props.labelX}
         labelY={this.props.labelY}
+        summaryText={this.props.summaryText}
   			/>
     </div>
   }

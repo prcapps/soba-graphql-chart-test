@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 
 import Example from '../../src'
 
+
 class Demo extends Component {
 
 
@@ -88,29 +89,33 @@ class Demo extends Component {
       <h1>soba-visualization Demo</h1>
       <div className='soba-visualization-demo'>
         <div className='soba-visualization'>
-         <Example 
-            title='APD Traffic Searches by Race, 2018'
-            chartType='line'  
-            dataset='coa_apd_traffic_stop_name_data_table' 
-            count='traffic_stop_id' 
-            byDate='["month"]' 
-            groupBy='["name_race", "no_contraband_found"]'
-            filters={filterObj2}
-            datasetLabels={datasetLabels}
-            labelX="Month"
-            labelY="Number of searches"
-            />
+        
             <Example 
-        title='patrickdemo 3'
-      spreadsheetId='1ZZbKNL4bxISIiAeUfsYZ-7ajfZPQ8VZ955WY0XP6ioE'
-      chartType='bar'  
-      showChartTypeSelect='1'
-      />
+              title='patrickdemo 3'
+            spreadsheetId='1zfG0JAmhQkPttm2cAuGQRs_i3ujymv0qCxX71p8zrv4'
+            chartType='bar'  
+            showChartTypeSelect='1'
+            spreadsheetChartColumns={['s','t']}
+            summaryText={<span>**R** total students<br/>60.6% White - **t** total<br/>22.4% Black - 1010 total</span>}
+            />
         </div>
       </div>
     </div>
   }
 
+
+ // <Example 
+ //            title='APD Traffic Searches by Race, 2018'
+ //            chartType='line'  
+ //            dataset='coa_apd_traffic_stop_name_data_table' 
+ //            count='traffic_stop_id' 
+ //            byDate='["month"]' 
+ //            groupBy='["name_race", "no_contraband_found"]'
+ //            filters={filterObj2}
+ //            datasetLabels={datasetLabels}
+ //            labelX="Month"
+ //            labelY="Number of searches"
+ //            />
 
 // <Example 
 //         title='APD Traffic Consent Searches by Race, 2018'

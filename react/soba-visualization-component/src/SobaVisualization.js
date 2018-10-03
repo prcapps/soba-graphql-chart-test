@@ -11,6 +11,8 @@ import {
 
 const API_KEY = 'AIzaSyC7rROXbT3W8IP4gs0oMtDGxumkMF4CFXo';
 
+var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+
 
 // import { drive_v3 } from 'googleapis';
 // import { GoogleSheets } from 'google-drive-sheets';
@@ -107,11 +109,13 @@ class SobaVisualization extends Component {
       datasetLabels: false,
       labelX: false,
       labelY: false,
+      summaryText: false,
     };
 
     const {
-      count, dataset, byDate, chartType, groupBy, spreadsheetId, showChartTypeSelect, filters,
-      datasetLabels, labelX, labelY
+      count, dataset, byDate, chartType, groupBy, spreadsheetId, spreadsheetChartColumns,
+      showChartTypeSelect, filters,
+      datasetLabels, labelX, labelY, summaryText
     } = props;
 
     this.state.count = count;
@@ -126,6 +130,8 @@ class SobaVisualization extends Component {
     this.state.datasetLabels = datasetLabels;
     this.state.labelX = labelX;
     this.state.labelY = labelY;
+    this.state.spreadsheetChartColumns = spreadsheetChartColumns;
+    this.state.summaryText = summaryText;
 
 
     if (typeof showChartTypeSelect !== typeof undefined) {
@@ -229,41 +235,6 @@ class SobaVisualization extends Component {
       }, function(reason) {
         console.error('error: ' + reason.result.error.message);
       });
-
-
-      // eslint-disable-next-line
-      // fetch(url, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     // eslint-disable-next-line
-      //     'Accept': 'application/json',
-      //   },
-      // })
-      //   .then(r => r.json())
-      //   .then((data) => {
-      //     console.log('test123', data);
-      //     if (data.feed.entry) {
-      //       const chartData = this.processGoogleSheetForChart(data.feed.entry);
-      //       this.setState({
-      //         chartDatasets: chartData[0],
-      //         chartLabels: chartData[1],
-      //       });
-      //       this.setState({
-      //         items: chartData[2],
-      //         errors: false,
-      //         loadingChart: false,
-      //       });
-      //     } else {
-      //       this.setState({
-      //         errors: 'Google Sheet Error',
-      //         loadingChart: false,
-      //         items: [],
-      //       });
-      //     }
-      //   });
-
-      // $('.results').prepend('<h2>'+this.gsx$name.$t+'</h2><p>'+this.gsx$age.$t+'</p>');
 
       this.setState({
         loadingChart: true,
@@ -378,15 +349,28 @@ class SobaVisualization extends Component {
     const chartDatasets = [];
 
     // First row is headers
-    const firstRow = data.shift(); 
+    let firstRow = data.shift(); 
 
     const yearLabel = firstRow.shift();
-    firstRow.forEach((value) => {
+
+    if(this.state.spreadsheetChartColumns){
+      this.state.spreadsheetChartColumns = this.state.spreadsheetChartColumns.map(row => alphabet.indexOf(row)-1 );
+    }
+
+    if (this.state.spreadsheetChartColumns) {
+      firstRow = firstRow.filter(
+        (value,index) => this.state.spreadsheetChartColumns.indexOf(index) !== -1
+      );
+    }
+
+    firstRow.forEach((value, index) => {
       const dataset = {};
       dataset.label = value;
       dataset.coordinates = [];
       dataset.data = [];
       dataset.backgroundColor = chartColors[chartDatasets.length];
+
+
 
       chartDatasets.push(dataset);
     });
@@ -402,14 +386,21 @@ class SobaVisualization extends Component {
 
       const yearTitle = value_array.shift();
 
-      console.log('data set', yearTitle);
       chartLabels.push(yearTitle);
       tableRow.groupTitle = yearTitle;
       tableRow.groupCategory = yearLabel;
       tableRow.count = '';
       tableRow.subitems = [];
 
+      if(this.state.spreadsheetChartColumns){
+        value_array = value_array.filter((value,index) => this.state.spreadsheetChartColumns.indexOf(index) !== -1);
+      }
+
+
       value_array.forEach((value, dataSetIndex) => {
+        // Cleanup values and parse
+        value = parseFloat(value.replace(',',''));
+
         chartDatasets[dataSetIndex].data[columnIndex] = value;
 
         tableRow.subitems[dataSetIndex] = {
@@ -794,11 +785,26 @@ class SobaVisualization extends Component {
       );
     }
 
-    const pStyle = {
+    let summaryPanel = false;
+    let summaryTab = false;
 
-  float: 'right',
-  display: 'block'
-};
+    if(this.state.summaryText){
+      let summaryTextHTML = this.state.summaryText;
+
+      console.log(summaryTextHTML);
+      // summaryTextHTML = summaryTextHTML.innerHTML.replace("**t**", "");
+
+      summaryTab = <Tab>Summary</Tab>;
+      summaryPanel = <TabPanel>
+        { [summaryTextHTML] }
+      </TabPanel>;
+    }
+
+
+    const pStyle = {
+      float: 'right',
+      display: 'block'
+    };
 
     return (
       <div className="soba-visualization">
@@ -809,12 +815,12 @@ class SobaVisualization extends Component {
             {dateRangeFilter}
           </div>
           <TabList>
-            <Tab>
-              Chart: 
-            </Tab>
+            {summaryTab}
+            <Tab>Chart</Tab>
             <Tab>Table</Tab>
             {settingsTab}
           </TabList>
+          {summaryPanel}
           <TabPanel>
             {chart}
           </TabPanel>
