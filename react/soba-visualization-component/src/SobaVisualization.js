@@ -8,6 +8,8 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 
+const reactStringReplace = require('react-string-replace')
+
 
 const API_KEY = 'AIzaSyC7rROXbT3W8IP4gs0oMtDGxumkMF4CFXo';
 
@@ -110,12 +112,13 @@ class SobaVisualization extends Component {
       labelX: false,
       labelY: false,
       summaryText: false,
+      activeRowIndex: 10,
     };
 
     const {
       count, dataset, byDate, chartType, groupBy, spreadsheetId, spreadsheetChartColumns,
       showChartTypeSelect, filters,
-      datasetLabels, labelX, labelY, summaryText
+      datasetLabels, labelX, labelY, summaryText, activeRowIndex
     } = props;
 
     this.state.count = count;
@@ -132,6 +135,7 @@ class SobaVisualization extends Component {
     this.state.labelY = labelY;
     this.state.spreadsheetChartColumns = spreadsheetChartColumns;
     this.state.summaryText = summaryText;
+    this.state.activeRowIndex = activeRowIndex;
 
 
     if (typeof showChartTypeSelect !== typeof undefined) {
@@ -392,10 +396,9 @@ class SobaVisualization extends Component {
       tableRow.count = '';
       tableRow.subitems = [];
 
-      if(this.state.spreadsheetChartColumns){
+      if (this.state.spreadsheetChartColumns) {
         value_array = value_array.filter((value,index) => this.state.spreadsheetChartColumns.indexOf(index) !== -1);
       }
-
 
       value_array.forEach((value, dataSetIndex) => {
         // Cleanup values and parse
@@ -414,6 +417,24 @@ class SobaVisualization extends Component {
     // console.log('labels', chartLabels);
     // console.log('data', chartDatasets);
     // console.log('table', tableData);
+
+    if(! this.state.activeRowIndex){
+      this.state.activeRowIndex = data.length-1;
+    }
+    if(data.length){
+
+
+      this.setState({ activeRow: data[this.state.activeRowIndex] });
+      this.setState({ activeRowData: data }); 
+      this.setState({ chartLabels: chartLabels }); 
+    } else {
+      this.setState({ activeRow: false });
+      this.setState({ activeRowData: false});
+      this.setState({ chartLabels: false }); 
+
+    }
+
+    console.log('active row', this.state.activeRow);
 
     return [chartDatasets, chartLabels, tableData];
   }
@@ -576,7 +597,7 @@ class SobaVisualization extends Component {
 
     const {
       chartType, chartLabels, chartDatasets, loadingChart, items, groupByText, byDateText, count,
-      dateField, errors, dataMode, showChartTypeSelect,
+      dateField, errors, dataMode, showChartTypeSelect, 
     } = this.state;
 
     const { title, dataset } = this.props;
@@ -676,6 +697,7 @@ class SobaVisualization extends Component {
     let chart = <Bar data={testData} options={chartOptions} />;
 
     if (chartType === 'line') {
+      chartOptions.scales.yAxes[0].stacked = true;
       chart = <Line data={testData} options={chartOptions} />;
     } else if (chartType === 'doughnut') {
       chart = <Doughnut data={testData} options={chartOptions} />;
@@ -788,16 +810,51 @@ class SobaVisualization extends Component {
     let summaryPanel = false;
     let summaryTab = false;
 
-    if(this.state.summaryText){
+    let summaryTextOutput = [];
+    if (this.state.summaryText) {
       let summaryTextHTML = this.state.summaryText;
 
-      console.log(summaryTextHTML);
-      // summaryTextHTML = summaryTextHTML.innerHTML.replace("**t**", "");
+      if (
+        this.state.activeRowIndex && typeof this.state.activeRowData !== typeof undefined &&
+        typeof this.state.activeRowData[this.state.activeRowIndex] !== typeof undefined) {
+
+        let activeRow = this.state.activeRowData[this.state.activeRowIndex];
+
+        console.log(summaryTextHTML);
+        summaryTextHTML.forEach((summaryTextHTMLElm, index) => {
+          summaryTextHTMLElm = reactStringReplace(summaryTextHTMLElm, /\(([^)]+)\)/g,
+            (match) => {
+              const matchIndex = alphabet.indexOf(match.toLowerCase()) - 1;
+              const replaceValue = activeRow[matchIndex];
+
+              return (<span>{replaceValue}</span>);
+            });
+          summaryTextOutput[index] = <div>{summaryTextHTMLElm}</div>;
+        });
+      }
 
       summaryTab = <Tab>Summary</Tab>;
-      summaryPanel = <TabPanel>
-        { [summaryTextHTML] }
-      </TabPanel>;
+
+      if(this.state.activeRowData){
+
+        let optionRows = [];
+
+         this.state.chartLabels.forEach((row, index) => {
+          optionRows.push(<option value={index}>{row}</option>);
+        });
+        summaryPanel =  (<div>
+            <select
+              name="activeRowIndex"
+              value={this.state.activeRowIndex}
+              onChange={this.handleInputChange}
+            >
+              {optionRows}
+            </select>
+            <div className='summary-text'>
+              { summaryTextOutput }
+            </div>
+          </div>);
+        }
     }
 
 
@@ -809,18 +866,19 @@ class SobaVisualization extends Component {
     return (
       <div className="soba-visualization">
         <h1>{ title }</h1>
+        <div>
+          {summaryPanel}
+        </div>
         <Tabs>
           <div className="user-controls" style={pStyle}>
             {chartTypeSelect}
             {dateRangeFilter}
           </div>
           <TabList>
-            {summaryTab}
             <Tab>Chart</Tab>
             <Tab>Table</Tab>
             {settingsTab}
           </TabList>
-          {summaryPanel}
           <TabPanel>
             {chart}
           </TabPanel>

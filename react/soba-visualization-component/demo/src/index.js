@@ -96,7 +96,7 @@ class Demo extends Component {
             chartType='bar'  
             showChartTypeSelect='1'
             spreadsheetChartColumns={['s','t']}
-            summaryText={<span>**R** total students<br/>60.6% White - **t** total<br/>22.4% Black - 1010 total</span>}
+            summaryText={['(R) total students', '(V) White - (T) total', '(U) Black - (S) total']}
             />
         </div>
       </div>
