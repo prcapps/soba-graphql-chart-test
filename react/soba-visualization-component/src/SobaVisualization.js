@@ -597,7 +597,7 @@ class SobaVisualization extends Component {
 
     const {
       chartType, chartLabels, chartDatasets, loadingChart, items, groupByText, byDateText, count,
-      dateField, errors, dataMode, showChartTypeSelect, 
+      dateField, errors, dataMode, showChartTypeSelect, spreadsheetID,
     } = this.state;
 
     const { title, dataset } = this.props;
@@ -608,10 +608,10 @@ class SobaVisualization extends Component {
       datasets: chartDatasets,
     };
 
-    var formatLabel = function(str, maxwidth){
-        var sections = [];
-        var words = str.split(" ");
-        var temp = "";
+    const formatLabel = function(str, maxwidth){
+        let sections = [];
+        let words = str.split(" ");
+        let temp = "";
 
         words.forEach(function(item, index){
             if(temp.length > 0)
@@ -736,7 +736,7 @@ class SobaVisualization extends Component {
     let settings = false;
     let settingsTab = false;
     let settingsPanel = false;
-    if (dataMode === 'graphql') {
+    if (false && dataMode === 'graphql') {
       settingsTab = <Tab>Settings</Tab>;
       settings = (
         <div className="inputs">
@@ -836,8 +836,7 @@ class SobaVisualization extends Component {
 
       summaryTab = <Tab>Summary</Tab>;
 
-      if(this.state.activeRowData){
-
+      if (this.state.activeRowData) {
         let optionRows = [];
 
          this.state.chartLabels.forEach((row, index) => {
@@ -864,6 +863,34 @@ class SobaVisualization extends Component {
       display: 'block'
     };
 
+    // Data Tab / Panel
+    let dataTab = false;
+    let dataPanel = false;
+
+    if (dataMode === 'google') {
+      dataTab = <Tab>Data</Tab>;
+      dataPanel = (
+        <TabPanel className="spredsheet-source">
+          <p>
+            This visualization is powered by a Google Spreadsheet.
+            You can help us keep these resources up to data by adding additional
+            information to the spreadsheet below.
+          </p>
+          <p>
+            Just request&nbsp;
+            <strong>Edit Access</strong>
+            , or contact us via&nbsp;
+            <a href="#intercom">
+              chat
+            </a>
+            , and you can edit!
+          </p>
+          <a href={'https://docs.google.com/spreadsheets/d/' + spreadsheetID}>
+            Google Spreadsheet
+          </a>
+        </TabPanel>);
+    }
+
     return (
       <div className="soba-visualization">
         <h1>{ title }</h1>
@@ -879,6 +906,7 @@ class SobaVisualization extends Component {
             <Tab>Chart</Tab>
             <Tab>Table</Tab>
             {settingsTab}
+            {dataTab}
           </TabList>
           <TabPanel>
             {chart}
@@ -887,7 +915,7 @@ class SobaVisualization extends Component {
             { table }
           </TabPanel>
           {settingsPanel}
-          
+          {dataPanel}
         </Tabs>
         { errors }
       </div>

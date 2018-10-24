@@ -89,9 +89,8 @@ class Demo extends Component {
       <h1>soba-visualization Demo</h1>
       <div className='soba-visualization-demo'>
         <div className='soba-visualization'>
-        
             <Example 
-              title='patrickdemo 3'
+              title='Spreadsheet Demo'
             spreadsheetId='1zfG0JAmhQkPttm2cAuGQRs_i3ujymv0qCxX71p8zrv4'
             chartType='bar'  
             showChartTypeSelect='1'
