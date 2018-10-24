@@ -820,17 +820,18 @@ class SobaVisualization extends Component {
 
         let activeRow = this.state.activeRowData[this.state.activeRowIndex];
 
-        console.log(summaryTextHTML);
-        summaryTextHTML.forEach((summaryTextHTMLElm, index) => {
-          summaryTextHTMLElm = reactStringReplace(summaryTextHTMLElm, /\(([^)]+)\)/g,
-            (match) => {
-              const matchIndex = alphabet.indexOf(match.toLowerCase()) - 1;
-              const replaceValue = activeRow[matchIndex];
+        if(summaryTextHTML.length){
+          summaryTextHTML.forEach((summaryTextHTMLElm, index) => {
+            summaryTextHTMLElm = reactStringReplace(summaryTextHTMLElm, /\(([^)]+)\)/g,
+              (match) => {
+                const matchIndex = alphabet.indexOf(match.toLowerCase()) - 1;
+                const replaceValue = activeRow[matchIndex];
 
-              return (<span>{replaceValue}</span>);
-            });
-          summaryTextOutput[index] = <div>{summaryTextHTMLElm}</div>;
-        });
+                return (<span>{replaceValue}</span>);
+              });
+            summaryTextOutput[index] = <div>{summaryTextHTMLElm}</div>;
+          });
+        }
       }
 
       summaryTab = <Tab>Summary</Tab>;
