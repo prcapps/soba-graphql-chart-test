@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "chart.js": "^2.7.2",
-    "googleapis": "27",
+    "googleapis": "39",
     "react-chartjs-2": "^2.7.4",
     "react-string-replace": "^0.4.1",
     "react-table": "^6.8.6",
